@@ -3,10 +3,14 @@ This project is based on the **UNISOLAR** open dataset containing information on
 
 The main goal of this project will be to forecast energy production based on previous production and weather data with a horizon of 24 hours.
 
+## Structure
+- `unisolar-project.ipynb` is the main notebook for the project.
+
 ## References
- - [GitHub repo](https://github.com/CDAC-lab/UNISOLAR/tree/main) containing the data.
- - [Original paper](https://github.com/CDAC-lab/UNISOLAR/tree/main) on the UNISOLAR dataset (
-    DOI: [10.1109/HSI55341.2022.9869474](https://github.com/CDAC-lab/UNISOLAR/tree/main)).
+ - [Link](https://www.kaggle.com/datasets/cdaclab/unisolar/data) to dataset.
+ - [GitHub repo](https://github.com/CDAC-lab/UNISOLAR/tree/main) containing subset of the data (not used here).
+ - [Original paper](https://ieeexplore.ieee.org/document/9869474) on the UNISOLAR dataset (
+    DOI: [10.1109/HSI55341.2022.9869474](https://ieeexplore.ieee.org/document/9869474)).
 
 ## Version History:
  - 2024-02-01: First commit
