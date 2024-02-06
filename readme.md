@@ -4,7 +4,8 @@ This project is based on the **UNISOLAR** open dataset containing information on
 The main goal of this project will be to forecast energy production based on previous production and weather data with a horizon of 24 hours.
 
 ## Structure
-- `unisolar-project.ipynb` is the main notebook for the project.
+- `unisolar_eda.ipynb` is the main EDA notebook for the project.
+- `unisolar_model.ipynb` is the main modeling notebook for the project.
 - `unisolar_utils.py` contains the main functions used in the notebooks.
 - `preprocessed_data.csv` contains a subset of preprocessed data (from `unisolar-project.ipynb`) for modeling.
 
@@ -16,4 +17,4 @@ The main goal of this project will be to forecast energy production based on pre
 
 ## Version History:
  - 2024-02-01: First commit
- - 2024-02-06: Added Weather EDA and utils file
+ - 2024-02-06: Added Weather EDA, utils file and modeling notebook.
