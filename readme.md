@@ -5,6 +5,7 @@ The main goal of this project will be to forecast energy production based on pre
 
 ## Structure
 - `unisolar-project.ipynb` is the main notebook for the project.
+- `unisolar_utils.py` contains the main functions used in the notebooks.
 
 ## References
  - [Link](https://www.kaggle.com/datasets/cdaclab/unisolar/data) to dataset.
@@ -14,3 +15,4 @@ The main goal of this project will be to forecast energy production based on pre
 
 ## Version History:
  - 2024-02-01: First commit
+ - 2024-02-06: Added Weather EDA and utils file
