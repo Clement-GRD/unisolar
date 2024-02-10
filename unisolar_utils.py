@@ -1,7 +1,10 @@
 import pandas as pd 
 import numpy as np
+import random
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.dates import DateFormatter
+
 import seaborn as sns
 import tensorflow as tf
 from sklearn.metrics import mean_absolute_error,mean_squared_error
@@ -144,6 +147,7 @@ def plot_naive_predictions(df: pd.DataFrame) -> None:
     axs[0].legend(loc=('upper left'))
     axs[1].legend(loc=('upper left'))
     fig.subplots_adjust(hspace=0)
+    fig.suptitle('Naive Model Predictions')
 
 
 def print_naive_predictions_metrics(df: pd.DataFrame) -> None:
@@ -214,7 +218,7 @@ def plot_train_valid_test(df_train: pd.DataFrame, df_valid: pd.DataFrame, df_tes
     ax.set_ylabel('Solar Generation')
     ax.set_xlabel('Date')
     ax.set_ylim(0, 8)
-    fig.suptitle("Train, test and validation split")
+    fig.suptitle("Train, validation and test sets")
 
 '''
 See "Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow" by A. Géron chapter 15 
@@ -294,20 +298,171 @@ def to_seq2seq_dataset(series: np.ndarray,
         ds = ds.shuffle(256 * batch_size, seed=seed) 
     return ds.batch(batch_size)
 
-def plot_training_history(history, title_string):
-    fig, axs = plt.subplots(2, 1, figsize=(10, 7), sharex=True)
+def plot_random_predictions(df: pd.DataFrame,
+                          dict_of_predictions: dict[str, np.ndarray],
+                          training_window: int,
+                          prediction_window: int) -> None:
+    """
+    Plot selected predictions for solar generation along with labels and naive predictions.
+
+    Parameters:
+    - df (pd.DataFrame): DataFrame containing the time series data.
+    - dict_of_predictions (Dict[str, np.ndarray]): Dictionary containing different prediction methods.
+    - training_window (int): Number of data points used in the training set.
+    - prediction_window (int): Number of steps ahead for prediction.
+
+    Returns:
+    None
+ 
+    Example:
+    ```python
+    plot_random_predictions(data_frame, {'Method1': predictions1, 'Method2': predictions2}, 100, 24)
+    ```
+
+    Note:
+    This function randomly selects a subset of data points and plots the corresponding solar generation labels,
+    naive predictions, and predictions from different methods provided in the dictionary `dict_of_predictions`.
+    """
+    number_of_plots = 6
+
+    fig, axs = plt.subplots(1, number_of_plots, figsize=(15, 5), sharey=True)
+
+    if dict_of_predictions == {}:
+        min_index_number = len(df)
+    else:
+        min_index_number = min([len(dict_of_predictions[x]) for x in dict_of_predictions])
+    for a in range(number_of_plots):
+        i = random.randrange(min_index_number)
+
+        index = df.iloc[(training_window + i):training_window + i + prediction_window].index
+
+        axs[a].plot(index, df['SolarGeneration'].iloc[(training_window + i):training_window + i + prediction_window].values, label='Label')
+        axs[a].plot(index, df['SolarGeneration'].shift(-24).iloc[(training_window + i):training_window + i + prediction_window].values, ls=':', label='Naive pred.')
+
+        for prediction in dict_of_predictions:
+            axs[a].plot(index, dict_of_predictions[prediction][i, -1, :], ls='--', label=prediction)
+
+        date_form = DateFormatter("%-I")  # hour without zero padding
+        axs[a].xaxis.set_major_formatter(date_form)
+
+    axs[0].legend(loc='upper center', frameon=False)
+    axs[0].set_ylabel('Solar Generation')
+    axs[0].set_ylim(0, 8)
+
+    fig.subplots_adjust(wspace=0)
+    fig.text(x=0.5, y=0, s='Hour')
+    fig.suptitle('Random Solar Generation Predictions')
+
+def plot_training_history(history, title_string: str) -> None:
+    """
+    Plot training and validation metrics from the history of a neural network.
+
+    Parameters:
+    - history (Any): History object returned by the `fit` method of a Keras model.
+    - title_string (str): Title string for the plot.
+
+    Returns:
+    None
+
+    Example:
+    ```python
+    plot_training_history(model_history, 'Training History')
+    ```
+
+    Note:
+    This function plots training and validation metrics, including mean squared error (mse) and mean absolute error (mae),
+    from the history object obtained during the training of a neural network.
+    """
+    fig, axs = plt.subplots(2, 1, figsize=(7, 7), sharex=True)
     fig.subplots_adjust(hspace=0)
+    
     axs[0].plot(history.history['mse'], label='training')
     axs[0].plot(history.history['val_mse'], label='validation')
     axs[1].plot(history.history['mae'])
     axs[1].plot(history.history['val_mae'])
         
-    axs[0].set_ylabel('loss')
+    axs[0].set_ylabel('mse')
+    axs[0].set_yscale('log')
+    axs[0].grid(which='both', axis='y', linestyle='--')
+
     axs[1].set_ylabel('mae')
+    axs[1].set_yscale('log')
+    axs[1].grid(which='both', axis='y', linestyle='--')
+
     axs[1].set_xlabel('Epochs')
     axs[0].set_title(title_string)
+
     axs[0].legend()
     
+
+def prediction_df(predictions: np.array, df: pd.DataFrame, prediction_window: int, training_window: int) -> pd.DataFrame:
+    """
+    Create a DataFrame containing solar generation predictions and corresponding timestamps.
+
+    Parameters:
+    - predictions (Any): Predictions obtained from a prediction model.
+    - df (pd.DataFrame): Original DataFrame containing time series data with 'SolarGeneration' target.
+    - prediction_window (int): Number of steps ahead for the predictions.
+    - training_window (int): Number of data points used in the training set.
+
+    Returns:
+    pd.DataFrame: A DataFrame with columns representing solar generation targets along with predictions for each step ahead.
+
+    Example:
+    ```python
+    predictions = model.predict(input_data)
+    prediction_dataframe = prediction_df(predictions, original_dataframe, 24)
+    ```
+
+    Note:
+    This function takes predictions from a model, extracts the solar generation values,
+    and organizes them into a DataFrame with columns representing each step ahead in the prediction horizon.
+    """
+    prediction_df = df['SolarGeneration'].iloc[training_window :-1].copy()
+    for ahead in range(prediction_window):
+        prediction_series = pd.Series(predictions[:-1, -1, ahead], df.iloc[training_window + ahead : -prediction_window + ahead].index,
+                                    name=f'pred_{ahead}')
+        prediction_df = pd.concat([prediction_df, prediction_series], axis=1) 
+    return prediction_df
+
+import pandas as pd
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from typing import Any, List, Tuple
+
+def create_error_list(prediction_df_model: pd.DataFrame, prediction_window: int) -> Tuple[list[float], list[float]]:
+    """
+    Create lists of Mean Absolute Error (MAE) and Mean Squared Error (MSE) for each step in the prediction window.
+
+    Parameters:
+    - prediction_df_model (pd.DataFrame): DataFrame containing solar generation predictions and actual values.
+    - prediction_window (int): Number of steps ahead in the prediction window.
+
+    Returns:
+    Tuple[List[float], List[float]]: Lists of MAE and MSE values for each step ahead.
+
+    Example:
+    ```python
+    prediction_errors = create_error_list(prediction_dataframe, 24)
+    ```
+
+    Note:
+    This function calculates the MAE and MSE between the actual solar generation values and predictions
+    for each step ahead in the specified prediction window.
+    """
+    mae_list = []
+    mse_list = []
+
+    for ahead in range(prediction_window):
+        column = f'pred_{ahead}'
+        prediction = prediction_df_model[column].dropna()
+        target = prediction_df_model.iloc[:, 0][prediction_df_model[f'pred_{ahead}'].notna()]
+        mae = mean_absolute_error(target, prediction)
+        mse = mean_squared_error(target, prediction)
+        mae_list.append(mae)
+        mse_list.append(mse)
+
+    return mae_list, mse_list
+
 def main():
     return
 
