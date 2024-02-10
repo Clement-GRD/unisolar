@@ -216,6 +216,11 @@ def plot_train_valid_test(df_train: pd.DataFrame, df_valid: pd.DataFrame, df_tes
     ax.set_ylim(0, 8)
     fig.suptitle("Train, test and validation split")
 
+'''
+See "Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow" by A. Géron chapter 15 
+and its GitHub repo
+https://github.com/ageron/handson-ml3/blob/main/15_processing_sequences_using_rnns_and_cnns.ipynb
+''' 
 def to_windows(dataset, length):
     """
     Converts a time series dataset into a windowed dataset with specified window length.
@@ -244,6 +249,11 @@ def to_windows(dataset, length):
     dataset = dataset.window(length, shift=1, drop_remainder=True) 
     return dataset.flat_map(lambda window_ds: window_ds.batch(length))
 
+'''
+See "Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow" by A. Géron chapter 15 
+and its GitHub repo
+https://github.com/ageron/handson-ml3/blob/main/15_processing_sequences_using_rnns_and_cnns.ipynb
+''' 
 def to_seq2seq_dataset(series: np.ndarray,
                         seq_length: int = 48,
                         ahead: int = 24,
