@@ -463,6 +463,55 @@ def create_error_list(prediction_df_model: pd.DataFrame, prediction_window: int)
 
     return mae_list, mse_list
 
+def plot_errors_horizon(error_dict: dict[str, tuple[list[float], list[float]]]) -> None:
+    """
+    Plot Mean Absolute Error (MAE) and Mean Squared Error (MSE) for different prediction models.
+
+    Parameters:
+    - error_dict (Dict[str, Tuple[List[float], List[float]]]): Dictionary containing error lists for each model.
+
+    Returns:
+    None
+
+    Example:
+    ```python
+    error_dict = {'Model1': ([mae1_1, mae1_2], [mse1_1, mse1_2]),
+                  'Model2': ([mae2_1, mae2_2], [mse2_1, mse2_2])}
+    plot_errors_horizon(error_dict)
+    ```
+
+    Note:
+    This function takes a dictionary with keys as model names and values as tuples of MAE and MSE lists.
+    It plots the errors for each model across different prediction horizons.
+
+    The input dictionary should have the following structure:
+    ```
+    {'ModelName1': ([MAE_values], [MSE_values]),
+     'ModelName2': ([MAE_values], [MSE_values]),
+     ...}
+    ```
+    """
+    fig, axs = plt.subplots(2, 1, sharex=True)
+    
+    for model, (mae_list, mse_list) in error_dict.items():
+        axs[0].plot(mae_list, label=model)
+        axs[1].plot(mse_list)
+
+    axs[0].set_ylabel('MAE')
+    axs[1].set_ylabel('MSE')
+
+    axs[0].grid(which='both', axis='both', linestyle='--')
+
+    axs[1].set_xlabel('Prediction Horizon (h)')
+    axs[1].grid(which='both', axis='both', linestyle='--')
+
+    axs[1].set_xlim(0, 24)
+    axs[1].set_xticks(range(0, 25, 6))
+    axs[0].legend()
+
+    fig.subplots_adjust(hspace=0)
+    fig.suptitle("Average Error as a Function of Prediction Horizon")
+
 def main():
     return
 
