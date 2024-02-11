@@ -425,11 +425,7 @@ def prediction_df(predictions: np.array, df: pd.DataFrame, prediction_window: in
         prediction_df = pd.concat([prediction_df, prediction_series], axis=1) 
     return prediction_df
 
-import pandas as pd
-from sklearn.metrics import mean_absolute_error, mean_squared_error
-from typing import Any, List, Tuple
-
-def create_error_list(prediction_df_model: pd.DataFrame, prediction_window: int) -> Tuple[list[float], list[float]]:
+def create_error_list(prediction_df_model: pd.DataFrame, prediction_window: int) -> tuple[list[float], list[float]]:
     """
     Create lists of Mean Absolute Error (MAE) and Mean Squared Error (MSE) for each step in the prediction window.
 
