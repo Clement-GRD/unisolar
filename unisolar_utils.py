@@ -166,8 +166,8 @@ def print_naive_predictions_metrics(df: pd.DataFrame) -> None:
     mse = mean_squared_error(true_values, predictions)
     mae = mean_absolute_error(true_values, predictions)
 
-    print('Mean Squared Error:', mse)
-    print('Mean Absolute Error:', mae)
+    print(f'Mean Squared Error: {mse: .3f}')
+    print(f'Mean Absolute Error: {mae: .3f}')
 
 def train_valid_test_split_df(df: pd.DataFrame, train_timestamp: str, test_timestamp: str) -> tuple:
     """
