@@ -1,2 +1,2 @@
-model_checkpoint_path: "rnn_0004"
-all_model_checkpoint_paths: "rnn_0004"
+model_checkpoint_path: "rnn_scaled_0005"
+all_model_checkpoint_paths: "rnn_scaled_0005"
